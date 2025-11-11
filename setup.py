@@ -21,9 +21,9 @@ setup(
         "tqdm >= 4.48",
         "ase",
         "pypng",
-        "pyqtgraph",
+        "pyqtgraph >= 0.13",
         "black",
-        "PyQT5",
+        "PyQt5 >= 5.15",
         "mrcfile"
     ],
 )

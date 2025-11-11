@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import h5py
 import copy
-import tqdm
+from tqdm.auto import tqdm
 import sys
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -9,7 +9,6 @@ import pyms
 import numpy as np
 import torch
 import os
-import torch
 
 def straight_line(x, m):
     """ Straight line function y=f(x) """
@@ -465,7 +464,7 @@ def generate_calibration_curves(
     else:
         LogI0I[0] = 0
 
-    for i, t in enumerate(tqdm.tqdm(thicknesses, desc="thicknesses")):
+    for i, t in enumerate(tqdm(thicknesses, desc="thicknesses")):
         # Apply multislice algorithm to simulate elastic scattering
         # Note the tiling = [16,16] which will generate psuedo-random
         # instances of amorphous ice structure by circularly shifting
