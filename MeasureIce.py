@@ -115,7 +115,7 @@ def add_warning_message(msg, color="red", fontsize=16, fill="white"):
 
 def set_raw_image(data, resetiso_line=True, resetposition=True):
     """Set the raw image display the chosen image."""
-    global iso_line, img, hist, iso
+    global iso_line, img, hist
     img.setImage(data)
 
     hist.setLevels(data.min(), data.max())
@@ -250,7 +250,7 @@ def save_ice_thickness_map():
 
 def set_I0_manually():
     """Set the vacuum intensity I0 via textbox"""
-    global Manual_i0, iso_line, iso
+    global Manual_i0, iso_line
     newval = float(Manual_i0.value())
     iso_line.setValue(newval)
     # iso.setLevel(newval)
