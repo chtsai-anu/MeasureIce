@@ -57,6 +57,29 @@ except AttributeError:  # PyQt5 fallback
     ALIGN_CENTER = QtCore.Qt.AlignCenter
 
 
+def _ensure_qt_app():
+    """Return an existing QApplication instance or create a new one."""
+    app = QtWidgets.QApplication.instance()
+    if app is None:
+        app = pg.mkQApp("MeasureIce")
+    return app
+
+
+def _exec_qt_object(obj):
+    """Execute Qt event loops across PyQt5/PyQt6 naming differences."""
+    for attr in ("exec", "exec_"):
+        exec_fn = getattr(obj, attr, None)
+        if exec_fn is not None:
+            return exec_fn()
+    raise AttributeError("Qt object has no exec/exec_ method to invoke")
+
+
+try:
+    ALIGN_CENTER = QtCore.Qt.AlignmentFlag.AlignCenter
+except AttributeError:  # PyQt5 fallback
+    ALIGN_CENTER = QtCore.Qt.AlignCenter
+
+
 def is_image_renormalized(array):
     """"Check for bit compression within image."""
     dtype = array.dtype
