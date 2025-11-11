@@ -57,6 +57,29 @@ except AttributeError:  # PyQt5 fallback
     ALIGN_CENTER = QtCore.Qt.AlignCenter
 
 
+def _ensure_qt_app():
+    """Return an existing QApplication instance or create a new one."""
+    app = QtWidgets.QApplication.instance()
+    if app is None:
+        app = pg.mkQApp("MeasureIce")
+    return app
+
+
+def _exec_qt_object(obj):
+    """Execute Qt event loops across PyQt5/PyQt6 naming differences."""
+    for attr in ("exec", "exec_"):
+        exec_fn = getattr(obj, attr, None)
+        if exec_fn is not None:
+            return exec_fn()
+    raise AttributeError("Qt object has no exec/exec_ method to invoke")
+
+
+try:
+    ALIGN_CENTER = QtCore.Qt.AlignmentFlag.AlignCenter
+except AttributeError:  # PyQt5 fallback
+    ALIGN_CENTER = QtCore.Qt.AlignCenter
+
+
 def is_image_renormalized(array):
     """"Check for bit compression within image."""
     dtype = array.dtype
@@ -129,8 +152,14 @@ def set_raw_image(data, resetiso_line=True, resetposition=True):
         add_warning_message("")
     # set position and scale of image
     if resetposition:
-        img.scale(1.0, 1.0)
-        img.translate(0, 0)
+        # The old PyQtGraph API allowed calling ``scale(x, y)`` directly on the
+        # image item, but newer releases expose only the no-argument form which
+        # resets the transform. Use ``resetTransform`` to clear any previous
+        # scaling or translation and then explicitly position the item at the
+        # origin so the behaviour matches older versions without triggering a
+        # TypeError.
+        img.resetTransform()
+        img.setPos(0, 0)
     if resetiso_line:
         iso_line.setValue(amax(data))
         update_iso_curve()
@@ -140,6 +169,7 @@ def set_raw_image(data, resetiso_line=True, resetposition=True):
 def load_image(yflip=True, transpose=False):
     """Action taken after the load image button is pressed"""
 
+    _ensure_qt_app()
     # Get filename from open file dialog
     fnam, _ = QtWidgets.QFileDialog.getOpenFileName(
         None, "Open image file", "", "*.tif *.tiff *.ser *.mrc"
@@ -207,8 +237,12 @@ def measure_ice_thickness():
 
     # Display ice thickness map
     tmap.setImage(thickness_map)
-    tmap.scale(1.0, 1.0)
-    tmap.translate(0, 0)
+    # ``ImageItem.scale(x, y)`` and ``translate`` were removed from the public
+    # API in recent PyQtGraph releases. Reset the transform instead and
+    # reposition the image explicitly so the behaviour mirrors the legacy
+    # approach without depending on deprecated methods.
+    tmap.resetTransform()
+    tmap.setPos(0, 0)
     tmap.hoverEvent = imageHoverEvent
 
 
@@ -216,6 +250,7 @@ def save_ice_thickness_map():
     """Save the generated ice thickness map, in pdf,png or tiff format"""
     endings = ("pdf (*.pdf)", "png (*.png)", "tif (*.tif)")
     # Get output filename from GUI dialog
+    _ensure_qt_app()
     fnam, ending = QtWidgets.QFileDialog.getSaveFileName(
         None, "Save thickness map", "", ";;".join(endings)
     )
