@@ -140,7 +140,6 @@ def set_raw_image(data, resetiso_line=True, resetposition=True):
 def load_image(yflip=True, transpose=False):
     """Action taken after the load image button is pressed"""
 
-    _ensure_qt_app()
     # Get filename from open file dialog
     fnam, _ = QtWidgets.QFileDialog.getOpenFileName(
         None, "Open image file", "", "*.tif *.tiff *.ser *.mrc"
@@ -217,7 +216,6 @@ def save_ice_thickness_map():
     """Save the generated ice thickness map, in pdf,png or tiff format"""
     endings = ("pdf (*.pdf)", "png (*.png)", "tif (*.tif)")
     # Get output filename from GUI dialog
-    _ensure_qt_app()
     fnam, ending = QtWidgets.QFileDialog.getSaveFileName(
         None, "Save thickness map", "", ";;".join(endings)
     )
