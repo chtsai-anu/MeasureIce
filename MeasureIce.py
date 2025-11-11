@@ -6,6 +6,7 @@ GUI for measuring ice thickness
 # To minimize size of distributable .exe file import specific functions
 # from libraries where possible
 from glob import glob
+import sys
 
 from numpy import (
     amax,
@@ -605,8 +606,6 @@ set_raw_image(initial_image())
 
 ## Start Qt event loop unless running in interactive mode or using pyside.
 if __name__ == "__main__":
-    import sys
-
     if (sys.flags.interactive != 1) or not hasattr(QtCore, "PYQT_VERSION"):
         if len(sys.argv) > 1:
             h5path = sys.argv[1]
